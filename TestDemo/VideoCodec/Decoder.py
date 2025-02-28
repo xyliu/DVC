@@ -1,6 +1,6 @@
 import pickle
 import tensorflow as tf
-from scipy.misc import imread
+from imageio import imread
 import numpy as np
 from argparse import ArgumentParser
 import math
@@ -13,11 +13,11 @@ def CalcuPSNR(target, ref):
 
 
 def load_graph(frozen_graph_filename):
-    with tf.gfile.GFile(frozen_graph_filename, "rb") as f:
-        graph_def = tf.GraphDef()
+    with tf.io.gfile.GFile(frozen_graph_filename, "rb") as f:
+        graph_def = tf.compat.v1.GraphDef()
         graph_def.ParseFromString(f.read())
 
-    with tf.Graph().as_default() as graph:
+    with tf.compat.v1.Graph().as_default() as graph:
         tf.import_graph_def(graph_def)
     return graph
 
@@ -31,7 +31,7 @@ def decoder(loadmodel, refer_path, outputfolder):
     motion_input = graph.get_tensor_by_name('import/quant_mv:0')
     previousImage = graph.get_tensor_by_name('import/input_image_ref:0')
 
-    with tf.Session(graph=graph) as sess:
+    with tf.compat.v1.Session(graph=graph) as sess:
 
         with open(outputfolder + 'quantized_res_feature.pkl', 'rb') as f:
             residual_feature = pickle.load(f)
@@ -67,7 +67,7 @@ def decoder(loadmodel, refer_path, outputfolder):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument('--DecoderModel', type=str, dest="loadmodel", default='./model/L2048/frozen_model_E.pb', help="decoder model")
+    parser.add_argument('--DecoderModel', type=str, dest="loadmodel", default='./model/L2048/frozen_model_D.pb', help="decoder model")
     parser.add_argument('--refer_frame', type=str, dest="refer_path", default='./image/im001.png', help="refer image path")
     parser.add_argument('--loadpath', type=str, dest="outputfolder", default='./testpkl/', help="saved pkl file")
 
