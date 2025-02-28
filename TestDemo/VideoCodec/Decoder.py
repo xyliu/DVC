@@ -1,6 +1,6 @@
 import pickle
 import tensorflow as tf
-from imageio import imread
+from imageio import imread,imwrite
 import numpy as np
 from argparse import ArgumentParser
 import math
@@ -21,6 +21,10 @@ def load_graph(frozen_graph_filename):
         tf.import_graph_def(graph_def)
     return graph
 
+def array_to_png(image_array, output_path, shape):
+    image_array = np.reshape(image_array, shape)
+    image_array = np.clip(image_array * 255, 0, 255).astype(np.uint8)
+    imwrite(output_path, image_array)
 
 def decoder(loadmodel, refer_path, outputfolder):
     graph = load_graph(loadmodel)
@@ -42,6 +46,7 @@ def decoder(loadmodel, refer_path, outputfolder):
         with open(outputfolder + 'quantized_motion_feature.pkl', 'rb') as f:
             motion_feature = pickle.load(f)
 
+        im_ori = imread(refer_path)
         im1 = imread(refer_path)
         im1 = im1 / 255.0
         im1 = np.expand_dims(im1, axis=0)
@@ -57,7 +62,7 @@ def decoder(loadmodel, refer_path, outputfolder):
             })
 
         # print(recon_d)
-        
+        array_to_png(recon_d, "./image/recon.png", im_ori.shape)
         # check 
         # imagedir = './image/'
         # im2 = imread(imagedir + 'im003.png')
