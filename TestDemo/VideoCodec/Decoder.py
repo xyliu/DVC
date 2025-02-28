@@ -19,6 +19,17 @@ def load_graph(frozen_graph_filename):
 
     with tf.compat.v1.Graph().as_default() as graph:
         tf.import_graph_def(graph_def)
+
+    if True:
+        with open('dec_net.txt', 'a') as file:
+            for node in graph_def.node:
+                # print(f"Node name: {node.name}, Op type: {node.op}")
+                print(f"Node name: {node.name}, Op type: {node.op}", file=file)
+
+    writer = tf.summary.create_file_writer('./declogs')
+    with writer.as_default():
+        tf.summary.graph(graph)
+
     return graph
 
 def array_to_png(image_array, output_path, shape):
